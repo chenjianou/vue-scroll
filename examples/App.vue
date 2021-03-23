@@ -1,17 +1,22 @@
+<template>
+  <LoadMore :enableRefresh="true" :enableScrollBar="true" :enableLoadMore="true" endpoint="/data/index">
+    <template #default={}>
+
+    </template>
+  </LoadMore>
+</template>
 <script lang="ts">
 import { defineComponent, onMounted, ref, h } from "vue";
 import LoadMore from '../packages/LoadMore/src/loadmore.vue'
 export default defineComponent({
+  components: {
+    LoadMore
+  },
   name: "App",
   setup() {
     onMounted(() => {
     })
   },
-  render () {
-    return h(LoadMore, {
-      
-    })
-  }
 });
 </script>
 

@@ -4,9 +4,10 @@
       <div class="pulldown-scroller" v-if="enableRefresh">
         <div class="pulldown-wrapper">
           <div v-show="refreshState === REFRESH_STATE.PULL_DOWN">
-            {{beforePullDown}}
-            <span v-show="beforePullDown">Pull Down and refresh</span>
-            <span v-show="!beforePullDown">CAN_REQUEST...</span>
+            <span>Pull Down and refresh</span>
+          </div>
+          <div v-show="refreshState === REFRESH_STATE.CAN_REQUEST">
+            <span>CAN_REQUEST...</span>
           </div>
           <div v-show="refreshState === REFRESH_STATE.LOADING">
             <span>Loading...</span>
@@ -17,6 +18,7 @@
         </div>
       </div>
       <div class="scroll-list_content">
+        {{refreshState}}
         <slot></slot>
       </div>
       <div class="pullup-tips" v-if="enableLoadMore">
@@ -94,7 +96,7 @@ export default defineComponent({
       default: () => ({ threshold: 50, stop: 30 }),
     },
     scrollBar: {
-      type: Object as PropType<ScrollbarOptions | true>,
+      type: Object as PropType<ScrollbarOptions | undefined>,
       default: () => ({})
     },
   },
@@ -108,42 +110,44 @@ export default defineComponent({
     });
     const scrollRef = ref<HTMLElement>();
     let scroll: BScroll
+    // 刷新状态
     let refreshState = ref<REFRESH_STATE>(REFRESH_STATE.PULL_DOWN);
-    let beforePullDown = ref(true);
+    // 上拉加载更多
     let isPullUpLoad = ref(false);
     const finishPullDown = () => {
-      beforePullDown.value = true;
       refreshState.value = REFRESH_STATE.PULL_DOWN;
       scroll.finishPullDown();
     };
     const pullingDownHandler = () => {
       refreshState.value = REFRESH_STATE.LOADING;
+      console.log(refreshState.value);
       setTimeout(() => {
         finishPullDown()
       }, 1000);
     };
     const scrollHandler = (pos: IPos) => {
-      if(pos.y >= (props.pullDown as PullDownRefreshConfig).threshold && beforePullDown) {
-        beforePullDown.value = false;
-      }
+      // 判断 y滚动 以及状态是否初始化成功
+      if(pos.y >= (props.pullDown as PullDownRefreshConfig).threshold && refreshState.value === REFRESH_STATE.PULL_DOWN) {
+        refreshState.value = REFRESH_STATE.CAN_REQUEST;
+      };
     };
     const finishPullingUp = () => {
       isPullUpLoad.value = false;
       scroll.finishPullUp();
-    }
-    let hasMore = ref(false);
+    };
+    let hasMore = ref(true);
     const pullingUpHandler = () => {
       if(hasMore.value) {
         isPullUpLoad.value = true;
         setTimeout(() => {
           finishPullingUp()
         }, 1000);
-      } 
+      };
     };
     const bindEvent = () => {
       props.enableRefresh && scroll.on('pullingDown', pullingDownHandler);
-      props.enableLoadMore && scroll.on('scroll', scrollHandler);
-      props.enableScrollBar && scroll.on('pullingUp', pullingUpHandler);
+      scroll.on('scroll', scrollHandler);
+      props.enableLoadMore && scroll.on('pullingUp', pullingUpHandler);
     }
     const initScroll = () => {
       scroll = new BScroll(scrollRef.value as HTMLElement, {
@@ -181,7 +185,6 @@ export default defineComponent({
       scrollRef,
       REFRESH_STATE,
       refreshState,
-      beforePullDown,
       isPullUpLoad,
       hasMore,
       refresh,
