@@ -1,12 +1,18 @@
 <template>
-  <Scroll v-bind="$attrs">
-    <slot :data="data"></slot>    
+  <Scroll :enableRefresh="true" :enableScrollBar="true" :enableLoadMore="true" v-bind="$attrs" ref="scroll" @refresh="refresh" @loadmore="loadmore">
+    <slot></slot>
   </Scroll>
 </template>
 <script lang="ts">
-import { defineComponent, PropType, Ref, ref } from 'vue';
+import { defineComponent, onMounted, PropType, Ref, ref } from 'vue';
 import Scroll from '../../Scroll/src/scroll.vue';
 import { useFetch, usePagination } from '../../../src/hooks/fetch';
+interface IScrollComp {
+  autoPullDownRefresh: () => {},
+  finishPullDown: () => {},
+  finishPullingUp: () => {},
+  [props: string]: any
+}
 export default defineComponent({
   components: {
     Scroll
@@ -19,12 +25,27 @@ export default defineComponent({
   },
   setup(props, ctx) {
     const paginionMeta = ref({ page: 1, pageSize: 10, total: 0 });
-    const { endpoint, nextPage, prevPage } = usePagination(props.endpoint, paginionMeta);
-    const api = useFetch(endpoint);
+    const { nextPage, prevPage } = usePagination(props.endpoint, paginionMeta);
+    const scroll = ref<IScrollComp>();
+    const refresh = () => {
+      setTimeout(() => {
+        scroll.value?.finishPullDown();
+      }, 1000);
+    };
+    const loadmore = () => {
+      setTimeout(() => {
+        scroll.value?.finishPullingUp();
+      }, 1000);
+    };
+    onMounted(() => {
+      scroll.value?.autoPullDownRefresh()
+    });
     return {
-      ...api,
       nextPage,
-      prevPage
+      prevPage,
+      scroll,
+      loadmore,
+      refresh
     }
   }
 })

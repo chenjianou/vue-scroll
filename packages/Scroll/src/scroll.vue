@@ -100,7 +100,7 @@ export default defineComponent({
       default: () => ({})
     },
   },
-  setup(props: IPorps, ctx) {
+  setup(props: IPorps, {emit}) {
     onMounted(() => {
       initScroll();
       bindEvent();
@@ -120,10 +120,8 @@ export default defineComponent({
     };
     const pullingDownHandler = () => {
       refreshState.value = REFRESH_STATE.LOADING;
-      console.log(refreshState.value);
-      setTimeout(() => {
-        finishPullDown()
-      }, 1000);
+      emit('refresh');
+      // finishPullDown()
     };
     const scrollHandler = (pos: IPos) => {
       // 判断 y滚动 以及状态是否初始化成功
@@ -139,9 +137,8 @@ export default defineComponent({
     const pullingUpHandler = () => {
       if(hasMore.value) {
         isPullUpLoad.value = true;
-        setTimeout(() => {
-          finishPullingUp()
-        }, 1000);
+        emit('loadmore');
+        // finishPullingUp();
       };
     };
     const bindEvent = () => {
@@ -181,6 +178,9 @@ export default defineComponent({
     const scrollToElement = (el: string | HTMLElement, time: number, offsetX: number | boolean, offsetY: number | boolean, easing?: EaseItem | undefined): void => {
       scroll.scrollToElement.call(scroll, el, time, offsetX, offsetY, easing)
     };
+    const autoPullDownRefresh = () => {
+      props.enableRefresh && scroll.autoPullDownRefresh();
+    };
     return {
       scrollRef,
       REFRESH_STATE,
@@ -192,7 +192,10 @@ export default defineComponent({
       disable,
       scrollBy,
       scrollTo,
-      scrollToElement
+      scrollToElement,
+      autoPullDownRefresh,
+      finishPullDown,
+      finishPullingUp
     }
   }
 })

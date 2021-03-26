@@ -1,5 +1,5 @@
 <template>
-  <LoadMore :enableRefresh="true" :enableScrollBar="true" :enableLoadMore="true" endpoint="/data/index">
+  <LoadMore  endpoint="/data/index">
     <template #default={}>
 
     </template>

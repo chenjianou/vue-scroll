@@ -13,7 +13,7 @@ export function useFetch(endpoint: any) {
   // ...
   function fetchData() {
     // ...
-    loading.value = true;    
+    loading.value = true;
     // If it's a ref, get its value
     // otherwise use it directly
       return axios.get(isRef(endpoint) ? endpoint.value : endpoint).then(resp => {
@@ -30,7 +30,7 @@ export function useFetch(endpoint: any) {
       // refetch the data again
       fetchData();
     });
-  } 
+  }
   onMounted(() => {
     fetchData();
   })
@@ -40,20 +40,20 @@ export function useFetch(endpoint: any) {
     error
     // ...
   };
-} 
+};
 
-export function usePagination (endpoint: any, pagenationMeta: Ref<IPagination>) {
+export function usePagination (endpoint: any, paginationMeta: Ref<IPagination>) {
   const paginateEndPoint = computed(() => {
-  return `${endpoint}?page=${pagenationMeta.value.page}&pageSize=${pagenationMeta.value.pageSize}`
+    return `${endpoint}?page=${paginationMeta.value.page}&pageSize=${paginationMeta.value.pageSize}`
   });
   function nextPage () {
-   pagenationMeta.value.page ++;
+   paginationMeta.value.page ++;
   };
   function prevPage () {
-    if (pagenationMeta.value.page <= 1) {
+    if (paginationMeta.value.page <= 1) {
       return;
     };
-   pagenationMeta.value.page --;
+   paginationMeta.value.page --;
   };
   return {
     endpoint: paginateEndPoint,
