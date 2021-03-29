@@ -1,8 +1,6 @@
 <template>
   <LoadMore  endpoint="/data/index">
-    <template #default={}>
-
-    </template>
+    <!-- <h1 v-for="i in 100">hello world</h1> -->
   </LoadMore>
 </template>
 <script lang="ts">

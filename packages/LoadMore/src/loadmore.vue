@@ -1,6 +1,6 @@
 <template>
   <Scroll :enableRefresh="true" :enableScrollBar="true" :enableLoadMore="true" v-bind="$attrs" ref="scroll" @refresh="refresh" @loadmore="loadmore">
-    <slot></slot>
+    <slot :data="data"></slot>
   </Scroll>
 </template>
 <script lang="ts">
@@ -26,6 +26,7 @@ export default defineComponent({
   setup(props, ctx) {
     const paginionMeta = ref({ page: 1, pageSize: 10, total: 0 });
     const { nextPage, prevPage } = usePagination(props.endpoint, paginionMeta);
+    const data = ref([]);
     const scroll = ref<IScrollComp>();
     const refresh = () => {
       setTimeout(() => {
@@ -38,9 +39,9 @@ export default defineComponent({
       }, 1000);
     };
     onMounted(() => {
-      scroll.value?.autoPullDownRefresh()
     });
     return {
+      data,
       nextPage,
       prevPage,
       scroll,
